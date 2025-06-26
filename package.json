@@ -1,0 +1,13 @@
+{
+  "name": "trello-api",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "quyennv learn node js",
+  "main": "src/server.js",
+  "author": "quyennv",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
