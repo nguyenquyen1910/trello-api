@@ -1,4 +1,5 @@
 import { slugify } from '../utils/formatters.js';
+import { boardModel } from '../models/boardModel.js';
 
 const createNew = async (boardData) => {
     if(!boardData.title) throw new Error('Title is required');
@@ -6,9 +7,12 @@ const createNew = async (boardData) => {
         ...boardData,
         slug: slugify(boardData.title)
     }
-    return newBoard;
+
+    const getNewBoard = await boardModel.findOneById(newBoard.insertedId);
+
+    return getNewBoard;
 }
 
 export const boardService = {
-    createNew
-}
+    createNew,
+} 

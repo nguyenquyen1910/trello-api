@@ -4,7 +4,9 @@ import { env } from '~/config/environment.js'
 import { APIs_V1 } from '~/routers/v1/index.js'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware.js'
 
-const START_SERVER = () => {
+const START_SERVER = async () => {
+  await CONNECT_DB();
+
   const app = express();
 
   app.use(express.json());
