@@ -1,17 +1,17 @@
 import { StatusCodes } from 'http-status-codes';
+import ApiError from '../utils/ApiError.js';
 
-const createNew = async (req, res) => {
+const createNew = async (req, res, next) => {
     try {
-        res.status(StatusCodes.OK).json({
+        const { title, description } = req.body;
+        res.status(StatusCodes.CREATED).json({
             message: 'Create a new board from controller'
         })
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            errors: error.message
-        })
+        next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
     }
 }
 
 export const boardController = {
     createNew
-}
+} 
