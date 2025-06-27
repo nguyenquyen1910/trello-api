@@ -1,9 +1,15 @@
 import express from 'express'
+import { StatusCodes } from 'http-status-codes'
+import { boardRouter } from './boardRouter.js';
 
-const router = express.Router();
+const Router = express.Router();
 
-router.get('/status', (req, res) => {
-  res.status(200).json({ message: 'API V1 are ready to use'});
+// Check API v1/status
+Router.get('/status', (req, res) => {
+  res.status(StatusCodes.OK).json({ message: 'API V1 are ready to use'});
 })
 
-export const APIs_V1 = router;
+// Board APIs
+Router.use('/boards', boardRouter);
+
+export const APIs_V1 = Router;
