@@ -6,6 +6,8 @@ import {
 import { GET_DB } from "../config/mongodb.js";
 import { ObjectId } from "mongodb";
 import { BOARD_TYPE } from "../utils/constants.js";
+import { columnModel } from "./columnModel.js";
+import { cardModel } from "./cardModel.js";
 
 const BOARD_COLLECTION_NAME = "boards";
 const BOARD_COLLECTION_SCHEMA = Joi.object({
@@ -47,7 +49,7 @@ const findOneById = async (id) => {
       .findOne({
         _id: new ObjectId(id),
       });
-    return result;
+    return result[0] || {};
   } catch (error) {
     throw new Error(error);
   }
@@ -55,12 +57,39 @@ const findOneById = async (id) => {
 
 const getDetail = async (id) => {
   try {
+    // const result = await GET_DB()
+    //   .collection(BOARD_COLLECTION_NAME)
+    //   .findOne({
+    //     _id: new ObjectId(id),
+    //   });
     const result = await GET_DB()
       .collection(BOARD_COLLECTION_NAME)
-      .findOne({
-        _id: new ObjectId(id),
-      });
-    return result;
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(id),
+            _destroy: false,
+          },
+        },
+        {
+          $lookup: {
+            from: columnModel.COLUMN_COLLECTION_NAME,
+            localField: "_id",
+            foreignField: "boardId",
+            as: "columns",
+          },
+        },
+        {
+          $lookup: {
+            from: cardModel.CARD_COLLECTION_NAME,
+            localField: "_id",
+            foreignField: "boardId",
+            as: "cards",
+          },
+        },
+      ])
+      .toArray();
+    return result[0] || {};
   } catch (error) {
     throw new Error(error);
   }

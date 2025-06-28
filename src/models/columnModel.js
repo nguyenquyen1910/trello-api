@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { OBJECT_ID_RULE, MONGO_OBJECT_ID_MESSAGE } from '../utils/validation.js';
+import { OBJECT_ID_RULE, MONGO_OBJECT_ID_MESSAGE } from '../utils/validators.js';
 
 const COLUMN_COLLECTION_NAME = 'columns';
 const COLUMN_COLLECTION_SCHEMA = Joi.object({
@@ -9,7 +9,7 @@ const COLUMN_COLLECTION_SCHEMA = Joi.object({
     Joi.string().pattern(OBJECT_ID_RULE).message(MONGO_OBJECT_ID_MESSAGE)
   ).default([]),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
+  updatedAt: Joi.date().timestamp('javascript').default(null), 
   _destroy: Joi.boolean().default(false),
 });
 
