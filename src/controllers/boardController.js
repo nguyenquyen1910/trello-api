@@ -12,10 +12,21 @@ const createNew = async (req, res, next) => {
       },
     });
   } catch (error) {
-    next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message));
+    next(error);
   }
 };
 
+const getDetail = async (req, res, next) => {
+  try {
+    const boardId = req.params.id;
+    const board = await boardService.getDetail(boardId);
+    res.status(StatusCodes.OK).json(board)
+  } catch (error) {
+    next(error);
+  }
+}
+
 export const boardController = {
   createNew,
+  getDetail,
 };

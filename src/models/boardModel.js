@@ -21,15 +21,18 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false),
 });
 
-
 const validateBeforeCreate = async (reqBody) => {
-    return await BOARD_COLLECTION_SCHEMA.validateAsync(reqBody, {abortEarly: false});
-}
+  return await BOARD_COLLECTION_SCHEMA.validateAsync(reqBody, {
+    abortEarly: false,
+  });
+};
 
 const createNew = async (reqBody) => {
   try {
     const validateData = await validateBeforeCreate(reqBody);
-    return await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validateData);
+    return await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .insertOne(validateData);
   } catch (error) {
     throw new Error(error);
   }
@@ -37,19 +40,34 @@ const createNew = async (reqBody) => {
 
 const findOneById = async (id) => {
   try {
-    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
-      _id: new ObjectId(id),
-    });
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOne({
+        _id: new ObjectId(id),
+      });
     return result;
   } catch (error) {
     throw new Error(error);
   }
 };
 
+const getDetail = async (id) => {
+  try {
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOne({
+        _id: new ObjectId(id),
+      });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
   createNew,
   findOneById,
+  getDetail,
 };
