@@ -9,3 +9,9 @@ export const BOARD_TYPE = {
   PUBLIC: "public",
   PRIVATE: "private",
 };
+
+export const USER_ROLE = {
+  MEMBER: "member",
+  ADMIN: "admin",
+  GUEST: "guest",
+};

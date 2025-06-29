@@ -11,8 +11,7 @@ const createNew = async (boardData) => {
     slug: slugify(boardData.title),
   };
   const getNewBoard = await boardModel.createNew(newBoardData);
-
-  const newBoard = await boardModel.findOneById(getNewBoard.insertedId);
+  const newBoard = await boardModel.getDetail(getNewBoard.insertedId);
   return newBoard;
 };
 
@@ -36,7 +35,31 @@ const getDetail = async (boardId) => {
   }
 };
 
+const update = async (boardId, boardData) => {
+  try {
+    const updateData = {
+      ...boardData,
+      updatedAt: Date.now(),
+    };
+    const updatedBoard = await boardModel.update(boardId, updateData);
+    return updatedBoard;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteBoard = async (boardId) => {
+  try {
+    const board = await boardModel.deleteBoard(boardId);
+    return board;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const boardService = {
   createNew,
   getDetail,
+  update,
+  deleteBoard,
 };

@@ -57,11 +57,6 @@ const findOneById = async (id) => {
 
 const getDetail = async (id) => {
   try {
-    // const result = await GET_DB()
-    //   .collection(BOARD_COLLECTION_NAME)
-    //   .findOne({
-    //     _id: new ObjectId(id),
-    //   });
     const result = await GET_DB()
       .collection(BOARD_COLLECTION_NAME)
       .aggregate([
@@ -87,9 +82,95 @@ const getDetail = async (id) => {
             as: "cards",
           },
         },
+        {
+          $addFields: {
+            columns: {
+              $filter: {
+                input: "$columns",
+                as: "column",
+                cond: { $eq: ["$$column._destroy", false] },
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            cards: {
+              $filter: {
+                input: "$cards",
+                as: "card",
+                cond: { $eq: ["$$card._destroy", false] },
+              },
+            },
+          },
+        },
       ])
       .toArray();
-    return result[0] || {};
+    return result[0] || null;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const pushColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(column.boardId) },
+        { $push: { columnOrderIds: String(column._id) } },
+        { returnDocument: "after" }
+      );
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const INVALID_UPDATE_FIELDS = ["_id", "createdAt"];
+
+const update = async (boardId, boardData) => {
+  try {
+    Object.keys(boardData).forEach((key) => {
+      if (INVALID_UPDATE_FIELDS.includes(key)) delete boardData[key];
+    });
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(boardId) },
+        { $set: boardData },
+        { returnDocument: "after" }
+      );
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteBoard = async (boardId) => {
+  try {
+    const result = await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(boardId) },
+        { $set: { _destroy: true } },
+        { returnDocument: "after" }
+      );
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const removeColumnFromOrder = async (boardId, columnId) => {
+  try {
+    return await GET_DB()
+      .collection(BOARD_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(boardId) },
+        { $pull: { columnOrderIds: String(columnId) } },
+        { returnDocument: "after" }
+      );
   } catch (error) {
     throw new Error(error);
   }
@@ -101,4 +182,8 @@ export const boardModel = {
   createNew,
   findOneById,
   getDetail,
+  pushColumnOrderIds,
+  update,
+  deleteBoard,
+  removeColumnFromOrder,
 };
