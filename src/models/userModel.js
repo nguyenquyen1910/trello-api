@@ -1,7 +1,8 @@
 import Joi from "joi";
 import { GET_DB } from "../config/mongodb.js";
 import { USER_ROLE } from "../utils/constants.js";
-import { hash, compare } from "bcryptjs";
+import { hash } from "bcryptjs";
+import { ObjectId } from "mongodb";
 
 const USER_COLLECTION_NAME = "users";
 const USER_COLLECTION_SCHEMA = Joi.object({
@@ -38,16 +39,26 @@ const validateBeforeCreate = async (reqBody) => {
   });
 };
 
-const comparePassword = async (password, hashedPassword) => {
-  return await compare(password, hashedPassword);
-};
-
 const findByEmail = async (email) => {
   try {
     const result = await GET_DB().collection(USER_COLLECTION_NAME).findOne({
       email: email,
       _destroy: false,
     });
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const findById = async (id) => {
+  try {
+    const result = await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOne({
+        _id: new ObjectId(id),
+        _destroy: false,
+      });
     return result;
   } catch (error) {
     throw new Error(error);
@@ -72,10 +83,47 @@ const createNew = async (newUserData) => {
   }
 };
 
+const updateLastLogin = async (userId) => {
+  try {
+    const result = await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(userId) },
+        {
+          $set: {
+            lastLogin: Date.now(),
+            updatedAt: Date.now(),
+          },
+        },
+        { returnDocument: "after" }
+      );
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const updatePassword = async (userId, newPassword) => {
+  try {
+    const result = await GET_DB()
+      .collection(USER_COLLECTION_NAME)
+      .findOneAndUpdate(
+        { _id: new ObjectId(userId) },
+        { $set: { password: newPassword } },
+        { returnDocument: "after" }
+      );
+    return result;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const userModel = {
   createNew,
   findByEmail,
+  findById,
   hashPassword,
-  comparePassword,
   validateBeforeCreate,
+  updateLastLogin,
+  updatePassword,
 };
